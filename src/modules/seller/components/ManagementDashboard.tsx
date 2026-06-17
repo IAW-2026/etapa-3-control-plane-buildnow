@@ -1,10 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
+import { useAuth } from '@clerk/nextjs';
 import { SegmentBar } from '@/modules/seller/components/SegmentBar';
 import { StoresTable } from '@/modules/seller/components/StoresTable';
 import { OrdersTable } from '@/modules/seller/components/OrdersTable';
 import { ProductsTable } from '@/modules/seller/components/ProductsTable';
+import { getStores, updateStoreStatus } from '@/modules/seller/services/storeService';
 import {
   StoreStatus,
   OrderStatus,
@@ -16,51 +18,8 @@ import {
 } from '@/modules/seller/types';
 
 // ─────────────────────────────────────────────
-// Mock data
+// Mock data — Orders & Products (se migran en la siguiente iteración)
 // ─────────────────────────────────────────────
-
-const MOCK_STORES: Store[] = [
-  {
-    id: 's1',
-    name: 'Norte Hub',
-    address: 'Av. Corrientes 1250, CABA',
-    status: StoreStatus.OPEN,
-    createdAt: new Date('2025-01-10'),
-    updatedAt: new Date('2025-01-10'),
-  },
-  {
-    id: 's2',
-    name: 'Sur Express',
-    address: 'Bv. San Juan 540, Córdoba',
-    status: StoreStatus.OPEN,
-    createdAt: new Date('2025-02-15'),
-    updatedAt: new Date('2025-02-15'),
-  },
-  {
-    id: 's3',
-    name: 'Centro Store',
-    address: 'Pellegrini 980, Rosario',
-    status: StoreStatus.CLOSE,
-    createdAt: new Date('2025-03-01'),
-    updatedAt: new Date('2025-03-01'),
-  },
-  {
-    id: 's4',
-    name: 'Oeste Point',
-    address: 'Av. San Martín 3400, Mendoza',
-    status: StoreStatus.OPEN,
-    createdAt: new Date('2025-04-20'),
-    updatedAt: new Date('2025-04-20'),
-  },
-  {
-    id: 's5',
-    name: 'Litoral Market',
-    address: 'Av. Libertador 780, Paraná',
-    status: StoreStatus.SUSPENDED,
-    createdAt: new Date('2025-05-05'),
-    updatedAt: new Date('2025-05-05'),
-  },
-];
 
 const MOCK_CATEGORIES: Category[] = [
   { id: 'c1', name: 'Electrónica', createdAt: new Date(), updatedAt: new Date() },
@@ -68,6 +27,15 @@ const MOCK_CATEGORIES: Category[] = [
   { id: 'c3', name: 'Hogar', createdAt: new Date(), updatedAt: new Date() },
   { id: 'c4', name: 'Alimentos', createdAt: new Date(), updatedAt: new Date() },
 ];
+
+const PLACEHOLDER_STORE: Store = {
+  id: '',
+  name: '',
+  address: '',
+  status: StoreStatus.CLOSE,
+  createdAt: new Date(),
+  updatedAt: new Date(),
+};
 
 const MOCK_PRODUCTS: Product[] = [
   {
@@ -95,16 +63,6 @@ const MOCK_PRODUCTS: Product[] = [
     weight: 0.5, available: true, storeId: 's1', categoryId: 'c4',
     category: MOCK_CATEGORIES[3], createdAt: new Date(), updatedAt: new Date(),
   },
-  {
-    id: 'p6', name: 'Mochila Outdoor', price: 8700, stock: 31,
-    weight: 0.8, available: true, storeId: 's4', categoryId: 'c2',
-    category: MOCK_CATEGORIES[1], createdAt: new Date(), updatedAt: new Date(),
-  },
-  {
-    id: 'p7', name: 'Cafetera Express', price: 41000, stock: 5,
-    weight: 2.1, available: true, storeId: 's2', categoryId: 'c3',
-    category: MOCK_CATEGORIES[2], createdAt: new Date(), updatedAt: new Date(),
-  },
 ];
 
 const MOCK_ORDERS: Order[] = [
@@ -112,84 +70,108 @@ const MOCK_ORDERS: Order[] = [
     id: 'ord-4821-a1b2', buyerId: 'user_2xPqR9mNkLjT4cBv',
     totalAmount: 3200, totalWeight: 0.6, status: OrderStatus.DELIVERED,
     deliveryAddress: 'Av. Santa Fe 1010, CABA',
-    storeId: 's1', store: MOCK_STORES[0], items: [],
+    storeId: 's1', store: PLACEHOLDER_STORE, items: [],
     createdAt: new Date('2026-06-12'), updatedAt: new Date('2026-06-12'),
   },
   {
     id: 'ord-4820-c3d4', buyerId: 'user_5hWmX8nQpYrZ2eDw',
     totalAmount: 870, totalWeight: 0.2, status: OrderStatus.PENDING_PAYMENT,
     deliveryAddress: 'Bv. San Juan 200, Córdoba',
-    storeId: 's2', store: MOCK_STORES[1], items: [],
+    storeId: 's2', store: PLACEHOLDER_STORE, items: [],
     createdAt: new Date('2026-06-12'), updatedAt: new Date('2026-06-12'),
   },
   {
     id: 'ord-4819-e5f6', buyerId: 'user_9kVsL3oMrNuA7bCx',
     totalAmount: 1540, totalWeight: 0.3, status: OrderStatus.DELIVERED,
     deliveryAddress: 'Av. Corrientes 4050, CABA',
-    storeId: 's1', store: MOCK_STORES[0], items: [],
+    storeId: 's1', store: PLACEHOLDER_STORE, items: [],
     createdAt: new Date('2026-06-11'), updatedAt: new Date('2026-06-11'),
   },
   {
     id: 'ord-4818-g7h8', buyerId: 'user_1tUjK6pFqGsH4iDy',
     totalAmount: 4900, totalWeight: 1.8, status: OrderStatus.CANCELLED,
     deliveryAddress: 'Av. San Martín 1200, Mendoza',
-    storeId: 's4', store: MOCK_STORES[3], items: [],
+    storeId: 's4', store: PLACEHOLDER_STORE, items: [],
     createdAt: new Date('2026-06-11'), updatedAt: new Date('2026-06-11'),
-  },
-  {
-    id: 'ord-4817-i9j0', buyerId: 'user_4wBxO2qElHmP8fGz',
-    totalAmount: 290, totalWeight: 0.1, status: OrderStatus.DELIVERED,
-    deliveryAddress: 'Pellegrini 300, Rosario',
-    storeId: 's3', store: MOCK_STORES[2], items: [],
-    createdAt: new Date('2026-06-10'), updatedAt: new Date('2026-06-10'),
   },
   {
     id: 'ord-4816-k1l2', buyerId: 'user_7yCoJ5rFtIoQ9gHa',
     totalAmount: 2100, totalWeight: 0.9, status: OrderStatus.ON_THE_WAY,
     deliveryAddress: 'Av. San Martín 3000, Mendoza',
-    storeId: 's4', store: MOCK_STORES[3], items: [],
+    storeId: 's4', store: PLACEHOLDER_STORE, items: [],
     createdAt: new Date('2026-06-10'), updatedAt: new Date('2026-06-10'),
   },
-  {
-    id: 'ord-4815-m3n4', buyerId: 'user_3zDpK8sGuJrR6hIb',
-    totalAmount: 640, totalWeight: 0.2, status: OrderStatus.CONFIRMED,
-    deliveryAddress: 'Bv. San Juan 800, Córdoba',
-    storeId: 's2', store: MOCK_STORES[1], items: [],
-    createdAt: new Date('2026-06-09'), updatedAt: new Date('2026-06-09'),
-  },
-  {
-    id: 'ord-4814-o5p6', buyerId: 'user_6aEqL1tHvKsS5iJc',
-    totalAmount: 22000, totalWeight: 0.9, status: OrderStatus.READY,
-    deliveryAddress: 'Av. Colón 500, Mendoza',
-    storeId: 's4', store: MOCK_STORES[3], items: [],
-    createdAt: new Date('2026-06-08'), updatedAt: new Date('2026-06-08'),
-  },
 ];
+
+const DEBOUNCE_MS = 400;
 
 // ─────────────────────────────────────────────
 // Component
 // ─────────────────────────────────────────────
 
 export function ManagementDashboard() {
-  const [activeView, setActiveView] = useState<ManagementView>('stores');
-  const [stores, setStores] = useState<Store[]>(MOCK_STORES);
+  const { getToken } = useAuth();
 
-  function handleToggleStore(id: string) {
-    setStores((prev) =>
-      prev.map((store) => {
-        if (store.id !== id) return store;
-        // Solo togglamos entre OPEN y CLOSE; SUSPENDED no se modifica
-        if (store.status === StoreStatus.SUSPENDED) return store;
-        return {
-          ...store,
-          status: store.status === StoreStatus.OPEN ? StoreStatus.CLOSE : StoreStatus.OPEN,
-          updatedAt: new Date(),
-        };
-      })
-    );
+  const [activeView, setActiveView] = useState<ManagementView>('stores');
+
+  // ── Stores state ──
+  const [stores, setStores] = useState<Store[]>([]);
+  const [storesLoading, setStoresLoading] = useState(true);
+  const [storesError, setStoresError] = useState<string | null>(null);
+  const [updatingStoreId, setUpdatingStoreId] = useState<string | null>(null);
+
+  // ── Búsqueda y paginación ──
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
+  // ── Fetch de tiendas ──
+  const loadStores = useCallback(
+    async (page: number) => {
+      setStoresLoading(true);
+      setStoresError(null);
+      try {
+        const token = await getToken();
+        if (!token) throw new Error('No autenticado');
+        const result = await getStores(token, page);
+        setStores(result.data);
+        setTotalPages(result.totalPages);
+      } catch (err) {
+        setStoresError(err instanceof Error ? err.message : 'Error al cargar las tiendas');
+      } finally {
+        setStoresLoading(false);
+      }
+    },
+    [getToken],
+  );
+
+  useEffect(() => {
+    void loadStores(1);
+  }, [loadStores]);
+
+  function handlePageChange(page: number) {
+    setCurrentPage(page);
+    void loadStores(page);
   }
 
-  // Sincronizar las órdenes con las tiendas actuales para que el store.status se refleje
+  // ── Cambio de estado de tienda ──
+  async function handleStatusChange(id: string, status: StoreStatus) {
+    setUpdatingStoreId(id);
+    try {
+      const token = await getToken();
+      if (!token) throw new Error('No autenticado');
+      const updated = await updateStoreStatus(token, id, status);
+      setStores((prev) =>
+        prev.map((s) => (s.id === updated.id ? { ...s, ...updated } : s)),
+      );
+    } catch (err) {
+      console.error('Error al actualizar estado de tienda:', err);
+      // TODO: mostrar toast de error
+    } finally {
+      setUpdatingStoreId(null);
+    }
+  }
+
+  // Sincronizar órdenes mock con los stores reales cargados
   const ordersWithCurrentStore: Order[] = MOCK_ORDERS.map((order) => ({
     ...order,
     store: stores.find((s) => s.id === order.storeId) ?? order.store,
@@ -210,11 +192,29 @@ export function ManagementDashboard() {
 
       {/* Views */}
       {activeView === 'stores' && (
-        <StoresTable
-          stores={stores}
-          orders={ordersWithCurrentStore}
-          onToggleStore={handleToggleStore}
-        />
+        <>
+          {storesError && !storesLoading && (
+            <div className="rounded-xl border border-[#FCEBEB] bg-[#FCEBEB] px-4 py-3 text-[13px] text-[#A32D2D]">
+              {storesError}
+              <button
+                onClick={() => void loadStores(currentPage)}
+                className="ml-3 underline hover:no-underline"
+              >
+                Reintentar
+              </button>
+            </div>
+          )}
+          <StoresTable
+            stores={stores}
+            loading={storesLoading}
+            orders={ordersWithCurrentStore}
+            updatingStoreId={updatingStoreId}
+            onStatusChange={handleStatusChange}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+          />
+        </>
       )}
       {activeView === 'orders' && (
         <OrdersTable orders={ordersWithCurrentStore} stores={stores} />

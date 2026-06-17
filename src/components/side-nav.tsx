@@ -11,8 +11,7 @@ import {
 const navItems = [
   { label: 'Dashboard', href: '/', icon: LayoutDashboard },
   { label: 'Users', href: '/users', icon: Users },
-  { label: 'Stores', href: '/stores', icon: Store },
-  { label: 'Orders', href: '/orders', icon: ShoppingCart },
+  { label: 'Seller', href: '/seller', icon: Store },
   { label: 'Delivery', href: '/delivery', icon: Truck }
 ];
 
@@ -45,8 +44,8 @@ export function SideNav({ userName = 'Admin User', userEmail = '' }: SideNavProp
             key={href}
             onClick={() => router.push(href)}
             className={`flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors ${pathname === href
-                ? 'bg-[var(--color-primary)] text-white'
-                : 'text-[var(--color-on-surface-variant)] hover:bg-[var(--color-surface-container-high)] hover:text-[var(--color-on-surface)]'
+              ? 'bg-[var(--color-primary)] text-white'
+              : 'text-[var(--color-on-surface-variant)] hover:bg-[var(--color-surface-container-high)] hover:text-[var(--color-on-surface)]'
               }`}
           >
             <Icon className="h-4 w-4 shrink-0" />
