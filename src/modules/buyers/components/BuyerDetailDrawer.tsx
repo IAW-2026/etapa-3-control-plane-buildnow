@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { X, MapPin, ShoppingCart, Loader2 } from 'lucide-react';
-import { BuyerDetailResponse } from '../types';
+import { BuyerDetailResponse } from '../../financial/types';
 import { getBuyerDetailAction } from '../actions/buyerControlPlaneActions';
 import { BuyerStatusBadge } from './BuyerStatusBadge';
 
@@ -24,12 +24,12 @@ export function BuyerDetailDrawer({ buyerId, onClose }: BuyerDetailDrawerProps) 
     }
 
     let isMounted = true;
-    
+
     const fetchDetail = async () => {
       setLoading(true);
       setError(null);
       const result = await getBuyerDetailAction(buyerId);
-      
+
       if (isMounted) {
         if (result.success && result.data) {
           setData(result.data as BuyerDetailResponse);
@@ -41,7 +41,7 @@ export function BuyerDetailDrawer({ buyerId, onClose }: BuyerDetailDrawerProps) 
     };
 
     fetchDetail();
-    
+
     return () => {
       isMounted = false;
     };
@@ -52,14 +52,14 @@ export function BuyerDetailDrawer({ buyerId, onClose }: BuyerDetailDrawerProps) 
   return (
     <>
       {/* Overlay */}
-      <div 
+      <div
         className="fixed inset-0 z-40 bg-black/50 transition-opacity"
         onClick={onClose}
       />
-      
+
       {/* Drawer */}
       <div className="fixed inset-y-0 right-0 z-50 flex w-full max-w-md flex-col bg-[var(--color-surface)] shadow-2xl transition-transform duration-300 transform translate-x-0 overflow-y-auto border-l border-[var(--color-outline-variant)]">
-        
+
         {/* Header */}
         <div className="flex items-center justify-between border-b border-[var(--color-outline-variant)] px-6 py-4">
           <h2 className="text-lg font-semibold text-[var(--color-on-surface)]">Buyer Detail</h2>

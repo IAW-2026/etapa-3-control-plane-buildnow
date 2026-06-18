@@ -7,10 +7,10 @@ import { BuyerStatus } from '../types';
 export async function toggleBuyerStatusAction(id: string, newStatus: BuyerStatus) {
   try {
     await buyerControlPlaneService.changeBuyerStatus(id, newStatus);
-    
+
     // Revalidamos la ruta principal para que se reflejen los cambios en la tabla y métricas
     revalidatePath('/buyers');
-    
+
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message };
