@@ -8,22 +8,31 @@ async function getAuthHeaders() {
   const token = await getToken();
   return {
     'Content-Type': 'application/json',
+    'User-Agent': 'Control-Plane-Server/1.0', // Bypasses Clerk's dev-browser redirect for S2S calls
     ...(token ? { 'Authorization': `Bearer ${token}` } : {})
   };
+}
+
+async function handleResponse<T>(response: Response, context: string): Promise<T> {
+  if (!response.ok) {
+    let errorBody = '';
+    try {
+      errorBody = await response.text();
+    } catch {}
+    console.error(`[BuyerAPI] ${context} failed — Status: ${response.status}, Body: ${errorBody}`);
+    throw new Error(`${context}: ${response.status} ${response.statusText}`);
+  }
+  return response.json();
 }
 
 export async function getBuyerSummary(): Promise<BuyerSummary> {
   const headers = await getAuthHeaders();
   const response = await fetch(`${BUYER_APP_URL}/api/control-plane/buyers/summary`, {
     headers,
-    cache: 'no-store', // Always fresh data for dashboard
+    cache: 'no-store',
   });
 
-  if (!response.ok) {
-    throw new Error('Failed to fetch buyer summary');
-  }
-
-  return response.json();
+  return handleResponse<BuyerSummary>(response, 'Failed to fetch buyer summary');
 }
 
 export async function getBuyers(params: {
@@ -47,11 +56,7 @@ export async function getBuyers(params: {
     cache: 'no-store',
   });
 
-  if (!response.ok) {
-    throw new Error('Failed to fetch buyers');
-  }
-
-  return response.json();
+  return handleResponse<BuyerListResponse>(response, 'Failed to fetch buyers');
 }
 
 export async function getBuyerById(id: string): Promise<BuyerDetailResponse> {
@@ -61,11 +66,7 @@ export async function getBuyerById(id: string): Promise<BuyerDetailResponse> {
     cache: 'no-store',
   });
 
-  if (!response.ok) {
-    throw new Error(`Failed to fetch buyer with id ${id}`);
-  }
-
-  return response.json();
+  return handleResponse<BuyerDetailResponse>(response, `Failed to fetch buyer ${id}`);
 }
 
 export async function updateBuyerStatus(id: string, status: BuyerStatus): Promise<{ success: boolean }> {
@@ -76,9 +77,5 @@ export async function updateBuyerStatus(id: string, status: BuyerStatus): Promis
     body: JSON.stringify({ status }),
   });
 
-  if (!response.ok) {
-    throw new Error(`Failed to update buyer status for id ${id}`);
-  }
-
-  return response.json();
+  return handleResponse<{ success: boolean }>(response, `Failed to update buyer status ${id}`);
 }
