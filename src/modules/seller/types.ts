@@ -69,6 +69,21 @@ export interface Product {
   updatedAt: Date;
 }
 
+/** Shape plana devuelta por GET /api/admin/products */
+export interface ProductItem {
+  id: string;
+  img?: string;
+  storeId: string;
+  storeName: string;
+  categoryId: string;
+  categoryName: string;
+  name: string;
+  price: number;
+  stock: number;
+  weight: number;
+  available: boolean;
+}
+
 export interface OrderItem {
   id: string;
   quantity: number;

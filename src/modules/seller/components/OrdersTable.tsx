@@ -1,15 +1,25 @@
 'use client';
 
-import { useState } from 'react';
-import { ShoppingCart } from 'lucide-react';
+import { Loader2, ShoppingCart } from 'lucide-react';
 import { FilterBar, FilterSelect } from '@/modules/seller/components/FilterBar';
 import { StatusBadge } from '@/modules/seller/components/StatusBadge';
+import { Pagination } from '@/modules/seller/components/Pagination';
 import { OrderStatus, ORDER_STATUS_LABELS } from '@/modules/seller/types';
 import type { Order, Store } from '@/modules/seller/types';
 
 interface OrdersTableProps {
   orders: Order[];
   stores: Store[];
+  loading?: boolean;
+  /** Filtros controlados desde el padre */
+  storeFilter: string;
+  statusFilter: string;
+  onStoreFilterChange: (storeId: string) => void;
+  onStatusFilterChange: (status: string) => void;
+  /** Paginación controlada desde el padre */
+  currentPage: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
 }
 
 const STATUS_FILTER_OPTIONS = [
@@ -21,7 +31,7 @@ const STATUS_FILTER_OPTIONS = [
 ];
 
 function formatDate(date: Date): string {
-  return date.toLocaleDateString('es-AR', { day: 'numeric', month: 'short' });
+  return new Date(date).toLocaleDateString('es-AR', { day: 'numeric', month: 'short' });
 }
 
 function formatAmount(amount: number): string {
@@ -45,20 +55,38 @@ function EmptyRow({ cols }: { cols: number }) {
   );
 }
 
-export function OrdersTable({ orders, stores }: OrdersTableProps) {
-  const [storeFilter, setStoreFilter] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
+function LoadingRow({ cols }: { cols: number }) {
+  return (
+    <tr>
+      <td
+        colSpan={cols}
+        className="py-8 text-center text-[13px] text-[var(--color-on-surface-variant)]"
+      >
+        <div className="flex items-center justify-center">
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          <span>Cargando órdenes...</span>
+        </div>
+      </td>
+    </tr>
+  );
+}
 
+export function OrdersTable({
+  orders,
+  stores,
+  loading,
+  storeFilter,
+  statusFilter,
+  onStoreFilterChange,
+  onStatusFilterChange,
+  currentPage,
+  totalPages,
+  onPageChange,
+}: OrdersTableProps) {
   const storeOptions = [
     { value: '', label: 'Todas' },
     ...stores.map((s) => ({ value: s.id, label: s.name })),
   ];
-
-  const filtered = orders.filter((o) => {
-    const matchesStore = !storeFilter || o.storeId === storeFilter;
-    const matchesStatus = !statusFilter || o.status === statusFilter;
-    return matchesStore && matchesStatus;
-  });
 
   return (
     <div className="overflow-hidden rounded-xl border border-[var(--color-outline-variant)] bg-[var(--color-surface)]">
@@ -67,14 +95,14 @@ export function OrdersTable({ orders, stores }: OrdersTableProps) {
           id="orders-store-filter"
           label="Tienda"
           value={storeFilter}
-          onChange={setStoreFilter}
+          onChange={onStoreFilterChange}
           options={storeOptions}
         />
         <FilterSelect
           id="orders-status-filter"
           label="Estado"
           value={statusFilter}
-          onChange={setStatusFilter}
+          onChange={onStatusFilterChange}
           options={STATUS_FILTER_OPTIONS}
         />
       </FilterBar>
@@ -94,10 +122,12 @@ export function OrdersTable({ orders, stores }: OrdersTableProps) {
             </tr>
           </thead>
           <tbody>
-            {filtered.length === 0 ? (
+            {loading ? (
+              <LoadingRow cols={6} />
+            ) : orders.length === 0 ? (
               <EmptyRow cols={6} />
             ) : (
-              filtered.map((order) => (
+              orders.map((order) => (
                 <tr
                   key={order.id}
                   className="border-b border-[var(--color-outline-variant)] last:border-0 hover:bg-[var(--color-surface-container-high)]"
@@ -126,6 +156,12 @@ export function OrdersTable({ orders, stores }: OrdersTableProps) {
           </tbody>
         </table>
       </div>
+
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={onPageChange}
+      />
     </div>
   );
 }

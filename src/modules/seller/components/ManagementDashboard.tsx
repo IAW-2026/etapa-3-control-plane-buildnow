@@ -1,109 +1,22 @@
 'use client';
 
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useAuth } from '@clerk/nextjs';
 import { SegmentBar } from '@/modules/seller/components/SegmentBar';
 import { StoresTable } from '@/modules/seller/components/StoresTable';
 import { OrdersTable } from '@/modules/seller/components/OrdersTable';
 import { ProductsTable } from '@/modules/seller/components/ProductsTable';
 import { getStores, updateStoreStatus } from '@/modules/seller/services/storeService';
+import { getOrders } from '@/modules/seller/services/orderService';
+import { getProducts, getCategories, type CategoryItem } from '@/modules/seller/services/productService';
 import {
   StoreStatus,
   OrderStatus,
   type ManagementView,
   type Store,
-  type Category,
-  type Product,
+  type ProductItem,
   type Order,
 } from '@/modules/seller/types';
-
-// ─────────────────────────────────────────────
-// Mock data — Orders & Products (se migran en la siguiente iteración)
-// ─────────────────────────────────────────────
-
-const MOCK_CATEGORIES: Category[] = [
-  { id: 'c1', name: 'Electrónica', createdAt: new Date(), updatedAt: new Date() },
-  { id: 'c2', name: 'Ropa', createdAt: new Date(), updatedAt: new Date() },
-  { id: 'c3', name: 'Hogar', createdAt: new Date(), updatedAt: new Date() },
-  { id: 'c4', name: 'Alimentos', createdAt: new Date(), updatedAt: new Date() },
-];
-
-const PLACEHOLDER_STORE: Store = {
-  id: '',
-  name: '',
-  address: '',
-  status: StoreStatus.CLOSE,
-  createdAt: new Date(),
-  updatedAt: new Date(),
-};
-
-const MOCK_PRODUCTS: Product[] = [
-  {
-    id: 'p1', name: 'Auriculares BT Pro', price: 12500, stock: 24,
-    weight: 0.3, available: true, storeId: 's1', categoryId: 'c1',
-    category: MOCK_CATEGORIES[0], createdAt: new Date(), updatedAt: new Date(),
-  },
-  {
-    id: 'p2', name: 'Remera Urbana', price: 3200, stock: 86,
-    weight: 0.2, available: true, storeId: 's2', categoryId: 'c2',
-    category: MOCK_CATEGORIES[1], createdAt: new Date(), updatedAt: new Date(),
-  },
-  {
-    id: 'p3', name: 'Lámpara LED 60W', price: 1800, stock: 12,
-    weight: 0.4, available: true, storeId: 's3', categoryId: 'c3',
-    category: MOCK_CATEGORIES[2], createdAt: new Date(), updatedAt: new Date(),
-  },
-  {
-    id: 'p4', name: 'Teclado Mecánico', price: 22000, stock: 8,
-    weight: 0.9, available: true, storeId: 's4', categoryId: 'c1',
-    category: MOCK_CATEGORIES[0], createdAt: new Date(), updatedAt: new Date(),
-  },
-  {
-    id: 'p5', name: 'Granola Premium', price: 980, stock: 150,
-    weight: 0.5, available: true, storeId: 's1', categoryId: 'c4',
-    category: MOCK_CATEGORIES[3], createdAt: new Date(), updatedAt: new Date(),
-  },
-];
-
-const MOCK_ORDERS: Order[] = [
-  {
-    id: 'ord-4821-a1b2', buyerId: 'user_2xPqR9mNkLjT4cBv',
-    totalAmount: 3200, totalWeight: 0.6, status: OrderStatus.DELIVERED,
-    deliveryAddress: 'Av. Santa Fe 1010, CABA',
-    storeId: 's1', store: PLACEHOLDER_STORE, items: [],
-    createdAt: new Date('2026-06-12'), updatedAt: new Date('2026-06-12'),
-  },
-  {
-    id: 'ord-4820-c3d4', buyerId: 'user_5hWmX8nQpYrZ2eDw',
-    totalAmount: 870, totalWeight: 0.2, status: OrderStatus.PENDING_PAYMENT,
-    deliveryAddress: 'Bv. San Juan 200, Córdoba',
-    storeId: 's2', store: PLACEHOLDER_STORE, items: [],
-    createdAt: new Date('2026-06-12'), updatedAt: new Date('2026-06-12'),
-  },
-  {
-    id: 'ord-4819-e5f6', buyerId: 'user_9kVsL3oMrNuA7bCx',
-    totalAmount: 1540, totalWeight: 0.3, status: OrderStatus.DELIVERED,
-    deliveryAddress: 'Av. Corrientes 4050, CABA',
-    storeId: 's1', store: PLACEHOLDER_STORE, items: [],
-    createdAt: new Date('2026-06-11'), updatedAt: new Date('2026-06-11'),
-  },
-  {
-    id: 'ord-4818-g7h8', buyerId: 'user_1tUjK6pFqGsH4iDy',
-    totalAmount: 4900, totalWeight: 1.8, status: OrderStatus.CANCELLED,
-    deliveryAddress: 'Av. San Martín 1200, Mendoza',
-    storeId: 's4', store: PLACEHOLDER_STORE, items: [],
-    createdAt: new Date('2026-06-11'), updatedAt: new Date('2026-06-11'),
-  },
-  {
-    id: 'ord-4816-k1l2', buyerId: 'user_7yCoJ5rFtIoQ9gHa',
-    totalAmount: 2100, totalWeight: 0.9, status: OrderStatus.ON_THE_WAY,
-    deliveryAddress: 'Av. San Martín 3000, Mendoza',
-    storeId: 's4', store: PLACEHOLDER_STORE, items: [],
-    createdAt: new Date('2026-06-10'), updatedAt: new Date('2026-06-10'),
-  },
-];
-
-const DEBOUNCE_MS = 400;
 
 // ─────────────────────────────────────────────
 // Component
@@ -120,9 +33,32 @@ export function ManagementDashboard() {
   const [storesError, setStoresError] = useState<string | null>(null);
   const [updatingStoreId, setUpdatingStoreId] = useState<string | null>(null);
 
-  // ── Búsqueda y paginación ──
+  // ── Stores: paginación ──
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+
+  // ── Orders state ──
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [ordersLoading, setOrdersLoading] = useState(false);
+  const [ordersError, setOrdersError] = useState<string | null>(null);
+
+  // ── Orders: paginación y filtros ──
+  const [ordersPage, setOrdersPage] = useState(1);
+  const [ordersTotalPages, setOrdersTotalPages] = useState(1);
+  const [ordersStoreFilter, setOrdersStoreFilter] = useState('');
+  const [ordersStatusFilter, setOrdersStatusFilter] = useState('');
+
+  // ── Products state ──
+  const [products, setProducts] = useState<ProductItem[]>([]);
+  const [productsLoading, setProductsLoading] = useState(false);
+  const [productsError, setProductsError] = useState<string | null>(null);
+
+  // ── Products: paginación y filtros ──
+  const [productsPage, setProductsPage] = useState(1);
+  const [productsTotalPages, setProductsTotalPages] = useState(1);
+  const [productsCatFilter, setProductsCatFilter] = useState('');
+  const [productsStoreFilter, setProductsStoreFilter] = useState('');
+  const [productsCategories, setProductsCategories] = useState<CategoryItem[]>([]);
 
   // ── Fetch de tiendas ──
   const loadStores = useCallback(
@@ -153,6 +89,114 @@ export function ManagementDashboard() {
     void loadStores(page);
   }
 
+  // ── Fetch de órdenes ──
+  const loadOrders = useCallback(
+    async (page: number, storeId: string, status: string) => {
+      setOrdersLoading(true);
+      setOrdersError(null);
+      try {
+        const token = await getToken();
+        if (!token) throw new Error('No autenticado');
+        const result = await getOrders(
+          token,
+          page,
+          storeId || undefined,
+          (status as OrderStatus) || undefined,
+        );
+        setOrders(result.data);
+        setOrdersTotalPages(result.totalPages);
+      } catch (err) {
+        setOrdersError(err instanceof Error ? err.message : 'Error al cargar las órdenes');
+      } finally {
+        setOrdersLoading(false);
+      }
+    },
+    [getToken],
+  );
+
+  // Cargar órdenes cuando se activa la vista (lazy)
+  useEffect(() => {
+    if (activeView === 'orders') {
+      void loadOrders(ordersPage, ordersStoreFilter, ordersStatusFilter);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeView]);
+
+  // ── Fetch de productos ──
+  const loadProducts = useCallback(
+    async (page: number, categoryId: string, storeId: string) => {
+      setProductsLoading(true);
+      setProductsError(null);
+      try {
+        const token = await getToken();
+        if (!token) throw new Error('No autenticado');
+        const result = await getProducts(
+          token,
+          page,
+          categoryId || undefined,
+          storeId || undefined,
+        );
+        setProducts(result.data);
+        setProductsTotalPages(result.totalPages);
+      } catch (err) {
+        setProductsError(err instanceof Error ? err.message : 'Error al cargar los productos');
+      } finally {
+        setProductsLoading(false);
+      }
+    },
+    [getToken],
+  );
+
+  // Cargar productos y categorías cuando se activa la vista (lazy)
+  useEffect(() => {
+    if (activeView === 'products') {
+      const fetchAll = async () => {
+        const token = await getToken();
+        if (!token) return;
+        await Promise.all([
+          loadProducts(productsPage, productsCatFilter, productsStoreFilter),
+          getCategories(token).then(setProductsCategories).catch(() => {}),
+        ]);
+      };
+      void fetchAll();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeView]);
+
+  function handleProductsPageChange(page: number) {
+    setProductsPage(page);
+    void loadProducts(page, productsCatFilter, productsStoreFilter);
+  }
+
+  function handleProductsCatFilter(categoryId: string) {
+    setProductsCatFilter(categoryId);
+    setProductsPage(1);
+    void loadProducts(1, categoryId, productsStoreFilter);
+  }
+
+  function handleProductsStoreFilter(storeId: string) {
+    setProductsStoreFilter(storeId);
+    setProductsPage(1);
+    void loadProducts(1, productsCatFilter, storeId);
+  }
+
+  function handleOrdersPageChange(page: number) {
+    setOrdersPage(page);
+    void loadOrders(page, ordersStoreFilter, ordersStatusFilter);
+  }
+
+  function handleOrdersStoreFilter(storeId: string) {
+    setOrdersStoreFilter(storeId);
+    setOrdersPage(1);
+    void loadOrders(1, storeId, ordersStatusFilter);
+  }
+
+  function handleOrdersStatusFilter(status: string) {
+    setOrdersStatusFilter(status);
+    setOrdersPage(1);
+    void loadOrders(1, ordersStoreFilter, status);
+  }
+
   // ── Cambio de estado de tienda ──
   async function handleStatusChange(id: string, status: StoreStatus) {
     setUpdatingStoreId(id);
@@ -170,12 +214,6 @@ export function ManagementDashboard() {
       setUpdatingStoreId(null);
     }
   }
-
-  // Sincronizar órdenes mock con los stores reales cargados
-  const ordersWithCurrentStore: Order[] = MOCK_ORDERS.map((order) => ({
-    ...order,
-    store: stores.find((s) => s.id === order.storeId) ?? order.store,
-  }));
 
   return (
     <div className="flex flex-col gap-6 p-6">
@@ -207,7 +245,6 @@ export function ManagementDashboard() {
           <StoresTable
             stores={stores}
             loading={storesLoading}
-            orders={ordersWithCurrentStore}
             updatingStoreId={updatingStoreId}
             onStatusChange={handleStatusChange}
             currentPage={currentPage}
@@ -217,10 +254,59 @@ export function ManagementDashboard() {
         </>
       )}
       {activeView === 'orders' && (
-        <OrdersTable orders={ordersWithCurrentStore} stores={stores} />
+        <>
+          {ordersError && !ordersLoading && (
+            <div className="rounded-xl border border-[#FCEBEB] bg-[#FCEBEB] px-4 py-3 text-[13px] text-[#A32D2D]">
+              {ordersError}
+              <button
+                onClick={() => void loadOrders(ordersPage, ordersStoreFilter, ordersStatusFilter)}
+                className="ml-3 underline hover:no-underline"
+              >
+                Reintentar
+              </button>
+            </div>
+          )}
+          <OrdersTable
+            orders={orders}
+            stores={stores}
+            loading={ordersLoading}
+            storeFilter={ordersStoreFilter}
+            statusFilter={ordersStatusFilter}
+            onStoreFilterChange={handleOrdersStoreFilter}
+            onStatusFilterChange={handleOrdersStatusFilter}
+            currentPage={ordersPage}
+            totalPages={ordersTotalPages}
+            onPageChange={handleOrdersPageChange}
+          />
+        </>
       )}
       {activeView === 'products' && (
-        <ProductsTable products={MOCK_PRODUCTS} stores={stores} />
+        <>
+          {productsError && !productsLoading && (
+            <div className="rounded-xl border border-[#FCEBEB] bg-[#FCEBEB] px-4 py-3 text-[13px] text-[#A32D2D]">
+              {productsError}
+              <button
+                onClick={() => void loadProducts(productsPage, productsCatFilter, productsStoreFilter)}
+                className="ml-3 underline hover:no-underline"
+              >
+                Reintentar
+              </button>
+            </div>
+          )}
+          <ProductsTable
+            products={products}
+            loading={productsLoading}
+            categories={productsCategories}
+            categoryFilter={productsCatFilter}
+            onCategoryFilterChange={handleProductsCatFilter}
+            stores={stores}
+            storeFilter={productsStoreFilter}
+            onStoreFilterChange={handleProductsStoreFilter}
+            currentPage={productsPage}
+            totalPages={productsTotalPages}
+            onPageChange={handleProductsPageChange}
+          />
+        </>
       )}
     </div>
   );

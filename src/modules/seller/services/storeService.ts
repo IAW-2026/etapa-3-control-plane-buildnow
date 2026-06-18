@@ -1,27 +1,5 @@
 import { StoreStatus, type Store } from '@/modules/seller/types';
-
-// ─────────────────────────────────────────────
-// Helpers
-// ─────────────────────────────────────────────
-
-const BASE_URL = process.env.NEXT_PUBLIC_API_SELLER_URL ?? '';
-
-function buildHeaders(token: string): HeadersInit {
-  return {
-    'Content-Type': 'application/json',
-    Authorization: `Bearer ${token}`,
-  };
-}
-
-async function handleResponse<T>(res: Response): Promise<T> {
-  if (!res.ok) {
-    console.log(res);
-    const text = await res.text().catch(() => res.statusText);
-    throw new Error(`API error ${res.status}: ${text}`);
-  }
-  return res.json() as Promise<T>;
-}
-
+import { buildHeaders, handleResponse, BASE_URL } from './utils';
 // ─────────────────────────────────────────────
 // Response shapes
 // ─────────────────────────────────────────────
