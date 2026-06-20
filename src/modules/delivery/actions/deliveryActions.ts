@@ -15,7 +15,6 @@ export async function updateDeliveryStatusAction(
 ) {
   try {
     await updateStatusApi(deliveryId, newStatus);
-    // Revalidamos la ruta para que la tabla muestre los datos actualizados.
     revalidatePath("/delivery");
     return { success: true };
   } catch (error) {

@@ -8,9 +8,8 @@ import { Loader2 } from "lucide-react";
 import { Delivery, StatusDelivery } from "../types";
 import { StatusBadge } from "@/modules/seller/components/StatusBadge"; // Reutilizamos el StatusBadge
 import { ConfirmStatusModal } from "@/modules/seller/components/ConfirmStatusModal";
-import { updateDeliveryStatusAction } from "../api/deliveryActions";
+import { updateDeliveryStatusAction } from "../actions/deliveryActions";
 
-// Tipo extendido para incluir la información del repartidor
 export type DeliveryColumn = Delivery & {
   repartidorName: string;
   repartidorVehicle: string;
@@ -26,7 +25,7 @@ function EmptyRow({ cols }: { cols: number }) {
     <tr>
       <td
         colSpan={cols}
-        className="py-8 text-center text-[13px] text-[var(--color-on-surface-variant)]"
+        className="py-8 text-center text-[13px] text-on-surface-variant"
       >
         No hay deliveries para mostrar.
       </td>
@@ -99,21 +98,22 @@ export function DeliveriesTable({ deliveries, loading }: DeliveriesTableProps) {
 
   return (
     <>
-      <div className="bg-[var(--color-surface)]">
+      <div className="bg-(--color-surface)">
         <div className="overflow-x-auto">
           <table className="w-full border-collapse text-[13px]">
             <thead>
               <tr>
                 {[
-                  "Repartidor",
+                  "ID",
                   "Dirección",
                   "Tienda",
+                  "Order",
                   "Estado",
                   "Acciones",
                 ].map((col) => (
                   <th
                     key={col}
-                    className="border-b border-[var(--color-outline-variant)] bg-[var(--color-surface-container-high)] px-4 py-2.5 text-left text-[11px] font-medium uppercase tracking-wider text-[var(--color-on-surface-variant)]"
+                    className="border-b border-outline-variant bg-surface-container-high px-4 py-2.5 text-left text-[11px] font-medium uppercase tracking-wider text-on-surface-variant"
                   >
                     {col}
                   </th>
@@ -123,34 +123,37 @@ export function DeliveriesTable({ deliveries, loading }: DeliveriesTableProps) {
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={5} className="py-8 text-center">
+                  <td colSpan={7} className="py-8 text-center">
                     <Loader2 className="mx-auto h-6 w-6 animate-spin" />
                   </td>
                 </tr>
               ) : deliveries.length === 0 ? (
-                <EmptyRow cols={5} />
+                <EmptyRow cols={7} />
               ) : (
                 deliveries.map((delivery) => (
                   <tr
                     key={delivery.id}
-                    className="border-b border-[var(--color-outline-variant)] last:border-0 hover:bg-[var(--color-surface-container-high)]"
+                    className="border-b border-outline-variant last:border-0 hover:bg-surface-container-high"
                   >
-                    <td className="px-4 py-[11px] font-medium">
-                      {delivery.repartidorName}
+                    <td className="px-4 py-2.75 font-mono text-xs text-on-surface-variant">
+                      {delivery.id}
                     </td>
-                    <td className="px-4 py-[11px] text-[var(--color-on-surface-variant)]">
+                    <td className="px-4 py-2.75 text-on-surface-variant">
                       {delivery.deliveryAddress}
                     </td>
-                    <td className="px-4 py-[11px] text-[var(--color-on-surface-variant)]">
+                    <td className="px-4 py-2.75 text-on-surface-variant">
                       {delivery.storeName}
                     </td>
-                    <td className="px-4 py-[11px]">
+                    <td className="px-4 py-2.75 text-on-surface-variant">
+                      {delivery.orderId || "-"}
+                    </td>
+                    <td className="px-4 py-2.75">
                       <StatusBadge status={delivery.status as any} />
                     </td>
-                    <td className="px-4 py-[11px] flex items-center gap-2">
+                    <td className="px-4 py-2.75 flex items-center gap-2">
                       <button
                         onClick={() => showHistory(delivery)}
-                        className="text-xs hover:underline"
+                        className="text-xs hover:underline cursor-pointer"
                       >
                         Historial
                       </button>
@@ -163,7 +166,7 @@ export function DeliveriesTable({ deliveries, loading }: DeliveriesTableProps) {
                           )
                         }
                         disabled={updatingDeliveryId === delivery.id}
-                        className="cursor-pointer rounded-md border border-[var(--color-outline-variant)] bg-[var(--color-surface)] px-2 py-1 text-xs outline-none focus:border-[var(--color-primary)]"
+                        className="cursor-pointer rounded-md border border-outline-variant bg-(--color-surface) px-2 py-1 text-xs outline-none focus:border-primary"
                       >
                         <option value={delivery.status} disabled>
                           {delivery.status}

@@ -1,12 +1,6 @@
 import { NextResponse } from "next/server";
 import { Delivery, Repartidor, StatusDelivery } from "../types";
 
-// Validamos que la variable de entorno exista al iniciar.
-// Si no existe, la aplicación fallará al arrancar con un error claro.
-if (!process.env.DELIVERY_API_URL) {
-  throw new Error("Falta la variable de entorno DELIVERY_API_URL");
-}
-
 const DELIVERY_API_URL = process.env.DELIVERY_API_URL;
 
 export async function getRepartidoresConDeliveries(): Promise<Repartidor[]> {

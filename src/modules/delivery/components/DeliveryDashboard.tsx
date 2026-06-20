@@ -12,7 +12,7 @@ export default async function DeliveryDashboard() {
           Deliveries
         </h1>
         <p className="text-sm text-on-surface-variant">
-          Administración de deliveries
+          Panel de control para seguimiento y actualización de estados de envío.
         </p>
         <DeliveryClient data={repartidores} />
       </div>
