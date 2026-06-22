@@ -10,7 +10,6 @@ import { StoreStatus } from '@/modules/seller/types';
 
 interface StoresTableProps {
   stores: Store[];
-  orders: Order[];
   loading?: boolean;
   /** ID de tienda cuyo estado se está actualizando actualmente (muestra loading) */
   updatingStoreId?: string | null;
