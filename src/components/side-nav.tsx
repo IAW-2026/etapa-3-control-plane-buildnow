@@ -13,7 +13,8 @@ const navItems = [
   { label: 'Buyers', href: '/buyers', icon: Users },
   { label: 'Users', href: '/users', icon: Users },
   { label: 'Seller', href: '/seller', icon: Store },
-  { label: 'Delivery', href: '/delivery', icon: Truck }
+  { label: 'Delivery', href: '/delivery', icon: Truck },
+  { label: 'Finanzas', href: '/finanzas', icon: CreditCard }
 ];
 
 interface SideNavProps {

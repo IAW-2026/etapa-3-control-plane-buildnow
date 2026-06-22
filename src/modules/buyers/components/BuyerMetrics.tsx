@@ -1,5 +1,5 @@
 import { Users, UserCheck, UserX, MapPin } from 'lucide-react';
-import { BuyerSummary } from '../types';
+import { BuyerSummary } from '../../financial/types';
 
 export function BuyerMetrics({ summary }: { summary: BuyerSummary }) {
   const cards = [
@@ -36,8 +36,8 @@ export function BuyerMetrics({ summary }: { summary: BuyerSummary }) {
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-6">
       {cards.map((card) => (
-        <div 
-          key={card.title} 
+        <div
+          key={card.title}
           className="flex items-center gap-4 rounded-xl border border-[var(--color-outline-variant)] bg-[var(--color-surface)] p-5 shadow-sm transition-all hover:shadow-md"
         >
           <div className={`flex h-12 w-12 items-center justify-center rounded-lg ${card.bgColor}`}>

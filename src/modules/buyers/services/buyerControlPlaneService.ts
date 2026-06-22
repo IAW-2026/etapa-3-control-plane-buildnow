@@ -1,5 +1,5 @@
 import { getBuyerSummary, getBuyers, getBuyerById, updateBuyerStatus } from '../api/buyerApi';
-import { BuyerStatus } from '../types';
+import { BuyerStatus } from '@/modules/buyers/types';
 
 export const buyerControlPlaneService = {
   getSummary: async () => {

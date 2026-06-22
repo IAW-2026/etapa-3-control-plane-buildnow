@@ -38,7 +38,7 @@ export function BuyersTable({ initialData }: BuyersTableProps) {
     if (key !== 'page') {
       params.set('page', '1');
     }
-    
+
     router.push(`${pathname}?${params.toString()}`);
   };
 

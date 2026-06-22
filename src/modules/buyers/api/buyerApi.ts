@@ -1,5 +1,5 @@
 import { auth } from '@clerk/nextjs/server';
-import { BuyerSummary, BuyerListResponse, BuyerDetailResponse, BuyerStatus } from '../types';
+import { BuyerSummary, BuyerListResponse, BuyerDetailResponse, BuyerStatus } from '../../financial/types';
 
 const BUYER_APP_URL = process.env.BUYER_APP_URL;
 

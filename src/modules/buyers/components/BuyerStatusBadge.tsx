@@ -1,8 +1,8 @@
-import { BuyerStatus } from '../types';
+import { BuyerStatus } from '@/modules/buyers/types';;
 
 export function BuyerStatusBadge({ status }: { status: BuyerStatus }) {
   const isActive = status === 'ACTIVE';
-  
+
   return (
     <span
       className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium ${
