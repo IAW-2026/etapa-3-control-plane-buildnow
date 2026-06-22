@@ -1,7 +1,7 @@
 import { auth } from '@clerk/nextjs/server';
 import { BuyerSummary, BuyerListResponse, BuyerDetailResponse, BuyerStatus } from '../../financial/types';
 
-const BUYER_APP_URL = process.env.BUYER_APP_URL || 'https://proyecto-b-buyer-buildnow.vercel.app';
+const BUYER_APP_URL = process.env.BUYER_APP_URL;
 
 async function getAuthHeaders() {
   const { getToken } = await auth();

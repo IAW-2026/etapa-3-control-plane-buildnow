@@ -1,13 +1,24 @@
 'use client';
 
-import { useState } from 'react';
-import { Package } from 'lucide-react';
+import { Loader2, Package } from 'lucide-react';
 import { FilterBar, FilterSelect } from '@/modules/seller/components/FilterBar';
-import type { Product, Store } from '@/modules/seller/types';
+import { Pagination } from '@/modules/seller/components/Pagination';
+import type { ProductItem } from '@/modules/seller/types';
 
 interface ProductsTableProps {
-  products: Product[];
-  stores: Store[];
+  products: ProductItem[];
+  loading?: boolean;
+  /** Filtros controlados desde el padre */
+  categoryFilter: string;
+  categories: { id: string; name: string }[];
+  onCategoryFilterChange: (categoryId: string) => void;
+  storeFilter: string;
+  stores: { id: string; name: string }[];
+  onStoreFilterChange: (storeId: string) => void;
+  /** Paginación controlada desde el padre */
+  currentPage: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
 }
 
 function formatPrice(price: number): string {
@@ -31,29 +42,46 @@ function EmptyRow({ cols }: { cols: number }) {
   );
 }
 
-export function ProductsTable({ products, stores }: ProductsTableProps) {
-  const [storeFilter, setStoreFilter] = useState('');
-  const [catFilter, setCatFilter] = useState('');
+function LoadingRow({ cols }: { cols: number }) {
+  return (
+    <tr>
+      <td
+        colSpan={cols}
+        className="py-8 text-center text-[13px] text-[var(--color-on-surface-variant)]"
+      >
+        <div className="flex items-center justify-center">
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          <span>Cargando productos...</span>
+        </div>
+      </td>
+    </tr>
+  );
+}
+
+export function ProductsTable({
+  products,
+  loading,
+  categoryFilter,
+  categories,
+  onCategoryFilterChange,
+  storeFilter,
+  stores,
+  onStoreFilterChange,
+  currentPage,
+  totalPages,
+  onPageChange,
+}: ProductsTableProps) {
+  const categoryOptions = [
+    { value: '', label: 'Todas' },
+    ...categories.map((c) => ({ value: c.id, label: c.name })),
+  ];
 
   const storeOptions = [
     { value: '', label: 'Todas' },
     ...stores.map((s) => ({ value: s.id, label: s.name })),
   ];
 
-  // Deriva categorías únicas desde los productos
-  const categoryOptions = [
-    { value: '', label: 'Todas' },
-    ...Array.from(new Set(products.map((p) => p.category.name))).map((name) => ({
-      value: name,
-      label: name,
-    })),
-  ];
-
-  const filtered = products.filter((p) => {
-    const matchesStore = !storeFilter || p.storeId === storeFilter;
-    const matchesCat = !catFilter || p.category.name === catFilter;
-    return matchesStore && matchesCat;
-  });
+  const COLS = ['Producto', 'Tienda', 'Categoría', 'Stock', 'Precio'];
 
   return (
     <div className="overflow-hidden rounded-xl border border-[var(--color-outline-variant)] bg-[var(--color-surface)]">
@@ -62,14 +90,14 @@ export function ProductsTable({ products, stores }: ProductsTableProps) {
           id="products-store-filter"
           label="Tienda"
           value={storeFilter}
-          onChange={setStoreFilter}
+          onChange={onStoreFilterChange}
           options={storeOptions}
         />
         <FilterSelect
           id="products-cat-filter"
           label="Categoría"
-          value={catFilter}
-          onChange={setCatFilter}
+          value={categoryFilter}
+          onChange={onCategoryFilterChange}
           options={categoryOptions}
         />
       </FilterBar>
@@ -78,11 +106,11 @@ export function ProductsTable({ products, stores }: ProductsTableProps) {
         <table className="w-full border-collapse text-[13px]">
           <thead>
             <tr>
-              {['Producto', 'Categoría', 'Tienda', 'Stock', 'Precio'].map((col, i) => (
+              {COLS.map((col, i) => (
                 <th
                   key={col}
                   className={`border-b border-[var(--color-outline-variant)] bg-[var(--color-surface-container-high)] px-4 py-2.5 text-left text-[11px] font-medium uppercase tracking-wider text-[var(--color-on-surface-variant)] ${
-                    i === 4 ? 'text-right' : ''
+                    i === COLS.length - 1 ? 'text-right' : ''
                   }`}
                 >
                   {col}
@@ -91,10 +119,12 @@ export function ProductsTable({ products, stores }: ProductsTableProps) {
             </tr>
           </thead>
           <tbody>
-            {filtered.length === 0 ? (
-              <EmptyRow cols={5} />
+            {loading ? (
+              <LoadingRow cols={COLS.length} />
+            ) : products.length === 0 ? (
+              <EmptyRow cols={COLS.length} />
             ) : (
-              filtered.map((product) => {
+              products.map((product) => {
                 const isLowStock = product.stock < 10;
                 return (
                   <tr
@@ -105,12 +135,14 @@ export function ProductsTable({ products, stores }: ProductsTableProps) {
                       {product.name}
                     </td>
                     <td className="px-4 py-[11px]">
-                      <span className="inline-flex items-center rounded-full bg-[#F1EFE8] px-2.5 py-0.5 text-[11px] font-medium text-[#5F5E5A]">
-                        {product.category.name}
+                      <span className="inline-flex items-center rounded-full bg-[#EBF1F8] px-2.5 py-0.5 text-[11px] font-medium text-[#2D5A8A]">
+                        {product.storeName}
                       </span>
                     </td>
-                    <td className="px-4 py-[11px] text-[var(--color-on-surface-variant)]">
-                      {stores.find((s) => s.id === product.storeId)?.name ?? '—'}
+                    <td className="px-4 py-[11px]">
+                      <span className="inline-flex items-center rounded-full bg-[#F1EFE8] px-2.5 py-0.5 text-[11px] font-medium text-[#5F5E5A]">
+                        {product.categoryName}
+                      </span>
                     </td>
                     <td
                       className={`px-4 py-[11px] ${
@@ -131,6 +163,12 @@ export function ProductsTable({ products, stores }: ProductsTableProps) {
           </tbody>
         </table>
       </div>
+
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={onPageChange}
+      />
     </div>
   );
 }

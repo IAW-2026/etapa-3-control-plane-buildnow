@@ -40,7 +40,7 @@ export function FilterSelect({ id, label, value, onChange, options }: FilterSele
         id={id}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="cursor-pointer rounded-md border border-[var(--color-outline-variant)] bg-[var(--color-surface)] px-2.5 py-[5px] text-[13px] text-[var(--color-on-surface)] outline-none transition-colors focus:border-[var(--color-primary)]"
+        className="max-w-[180px] cursor-pointer overflow-hidden text-ellipsis rounded-md border border-[var(--color-outline-variant)] bg-[var(--color-surface)] px-2.5 py-[5px] text-[13px] text-[var(--color-on-surface)] outline-none transition-colors focus:border-[var(--color-primary)]"
       >
         {options.map((opt) => (
           <option key={opt.value} value={opt.value}>
@@ -67,7 +67,7 @@ export function FilterInput({ value, onChange, placeholder, ariaLabel }: FilterI
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
       aria-label={ariaLabel}
-      className="w-48 rounded-md border border-[var(--color-outline-variant)] bg-[var(--color-surface)] px-2.5 py-[5px] text-[13px] text-[var(--color-on-surface)] outline-none transition-colors placeholder:text-[var(--color-on-surface-variant)] focus:border-[var(--color-primary)]"
+      className="w-48 max-w-full truncate rounded-md border border-[var(--color-outline-variant)] bg-[var(--color-surface)] px-2.5 py-[5px] text-[13px] text-[var(--color-on-surface)] outline-none transition-colors placeholder:text-[var(--color-on-surface-variant)] focus:border-[var(--color-primary)]"
     />
   );
 }
