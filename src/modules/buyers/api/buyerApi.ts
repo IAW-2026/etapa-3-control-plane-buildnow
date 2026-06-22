@@ -1,7 +1,7 @@
 import { auth } from '@clerk/nextjs/server';
 import { BuyerSummary, BuyerListResponse, BuyerDetailResponse, BuyerStatus } from '../types';
 
-const BUYER_APP_URL = process.env.BUYER_APP_URL || 'https://proyecto-b-buyer-buildnow.vercel.app';
+const BUYER_APP_URL = process.env.BUYER_APP_URL;
 
 async function getAuthHeaders() {
   const { getToken } = await auth();
@@ -18,7 +18,7 @@ async function handleResponse<T>(response: Response, context: string): Promise<T
     let errorBody = '';
     try {
       errorBody = await response.text();
-    } catch {}
+    } catch { }
     console.error(`[BuyerAPI] ${context} failed — Status: ${response.status}, Body: ${errorBody}`);
     throw new Error(`${context}: ${response.status} ${response.statusText}`);
   }
@@ -43,14 +43,14 @@ export async function getBuyers(params: {
 }): Promise<BuyerListResponse> {
   const headers = await getAuthHeaders();
   const searchParams = new URLSearchParams();
-  
+
   if (params.page) searchParams.set('page', params.page.toString());
   if (params.limit) searchParams.set('limit', params.limit.toString());
   if (params.status) searchParams.set('status', params.status);
   if (params.search) searchParams.set('search', params.search);
 
   const url = `${BUYER_APP_URL}/api/control-plane/buyers${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
-  
+
   const response = await fetch(url, {
     headers,
     cache: 'no-store',

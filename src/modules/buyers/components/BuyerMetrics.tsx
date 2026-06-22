@@ -4,28 +4,28 @@ import { BuyerSummary } from '../types';
 export function BuyerMetrics({ summary }: { summary: BuyerSummary }) {
   const cards = [
     {
-      title: 'Total Buyers',
+      title: 'Total Compradores',
       value: summary.totalBuyers,
       icon: Users,
       color: 'text-blue-500',
       bgColor: 'bg-blue-500/10'
     },
     {
-      title: 'Active Buyers',
+      title: 'Compradores Activos',
       value: summary.activeBuyers,
       icon: UserCheck,
       color: 'text-green-500',
       bgColor: 'bg-green-500/10'
     },
     {
-      title: 'Disabled Buyers',
+      title: 'Compradores Deshabilitados',
       value: summary.disabledBuyers,
       icon: UserX,
       color: 'text-red-500',
       bgColor: 'bg-red-500/10'
     },
     {
-      title: 'Buyers with Address',
+      title: 'Con Dirección',
       value: summary.buyersWithAddress,
       icon: MapPin,
       color: 'text-purple-500',

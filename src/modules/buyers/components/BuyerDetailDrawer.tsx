@@ -62,7 +62,7 @@ export function BuyerDetailDrawer({ buyerId, onClose }: BuyerDetailDrawerProps) 
         
         {/* Header */}
         <div className="flex items-center justify-between border-b border-[var(--color-outline-variant)] px-6 py-4">
-          <h2 className="text-lg font-semibold text-[var(--color-on-surface)]">Buyer Detail</h2>
+          <h2 className="text-lg font-semibold text-[var(--color-on-surface)]">Detalle del Comprador</h2>
           <button
             onClick={onClose}
             className="rounded-full p-2 hover:bg-[var(--color-surface-container-high)] text-[var(--color-on-surface-variant)] transition-colors"
@@ -90,23 +90,23 @@ export function BuyerDetailDrawer({ buyerId, onClose }: BuyerDetailDrawerProps) 
               {/* Buyer Information */}
               <section className="space-y-3">
                 <h3 className="text-sm font-semibold uppercase tracking-wider text-[var(--color-on-surface-variant)]">
-                  Buyer Information
+                  Información del Comprador
                 </h3>
                 <div className="rounded-xl border border-[var(--color-outline-variant)] p-4 space-y-3 bg-[var(--color-surface-container-lowest)]">
                   <div>
-                    <p className="text-xs text-[var(--color-on-surface-variant)]">Name</p>
+                    <p className="text-xs text-[var(--color-on-surface-variant)]">Nombre</p>
                     <p className="font-medium text-[var(--color-on-surface)]">{data.buyer.name}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-[var(--color-on-surface-variant)]">Email</p>
+                    <p className="text-xs text-[var(--color-on-surface-variant)]">Correo</p>
                     <p className="font-medium text-[var(--color-on-surface)]">{data.buyer.email}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-[var(--color-on-surface-variant)]">Phone</p>
+                    <p className="text-xs text-[var(--color-on-surface-variant)]">Teléfono</p>
                     <p className="font-medium text-[var(--color-on-surface)]">{data.buyer.phone}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-[var(--color-on-surface-variant)]">Status</p>
+                    <p className="text-xs text-[var(--color-on-surface-variant)]">Estado</p>
                     <div className="mt-1">
                       <BuyerStatusBadge status={data.buyer.status} />
                     </div>
@@ -117,7 +117,7 @@ export function BuyerDetailDrawer({ buyerId, onClose }: BuyerDetailDrawerProps) 
               {/* Addresses */}
               <section className="space-y-3">
                 <h3 className="text-sm font-semibold uppercase tracking-wider text-[var(--color-on-surface-variant)]">
-                  Addresses ({data.addresses.length})
+                  Direcciones ({data.addresses.length})
                 </h3>
                 {data.addresses.length > 0 ? (
                   <div className="space-y-3">
@@ -132,27 +132,27 @@ export function BuyerDetailDrawer({ buyerId, onClose }: BuyerDetailDrawerProps) 
                     ))}
                   </div>
                 ) : (
-                  <p className="text-sm text-[var(--color-on-surface-variant)]">No addresses registered.</p>
+                  <p className="text-sm text-[var(--color-on-surface-variant)]">No hay direcciones registradas.</p>
                 )}
               </section>
 
               {/* Active Cart Summary */}
               <section className="space-y-3">
                 <h3 className="text-sm font-semibold uppercase tracking-wider text-[var(--color-on-surface-variant)]">
-                  Active Cart
+                  Carrito Activo
                 </h3>
                 <div className="rounded-xl border border-[var(--color-outline-variant)] p-4 bg-gradient-to-br from-[var(--color-primary-container)] to-transparent">
                   <div className="flex items-center gap-3 mb-2">
                     <ShoppingCart className="h-5 w-5 text-[var(--color-primary)]" />
-                    <p className="font-medium text-[var(--color-on-surface)]">Cart Summary</p>
+                    <p className="font-medium text-[var(--color-on-surface)]">Resumen del Carrito</p>
                   </div>
                   <div className="grid grid-cols-2 gap-4 mt-4">
                     <div>
-                      <p className="text-xs text-[var(--color-on-surface-variant)]">Items Count</p>
+                      <p className="text-xs text-[var(--color-on-surface-variant)]">Cantidad de Items</p>
                       <p className="text-lg font-bold text-[var(--color-on-surface)]">{data.cart.itemsCount}</p>
                     </div>
                     <div>
-                      <p className="text-xs text-[var(--color-on-surface-variant)]">Estimated Value</p>
+                      <p className="text-xs text-[var(--color-on-surface-variant)]">Valor Estimado</p>
                       <p className="text-lg font-bold text-[var(--color-on-surface)]">
                         ${data.cart.estimatedValue.toLocaleString()}
                       </p>
@@ -165,15 +165,15 @@ export function BuyerDetailDrawer({ buyerId, onClose }: BuyerDetailDrawerProps) 
               {data.cartItems.length > 0 && (
                 <section className="space-y-3">
                   <h3 className="text-sm font-semibold uppercase tracking-wider text-[var(--color-on-surface-variant)]">
-                    Cart Items
+                    Items del Carrito
                   </h3>
                   <div className="overflow-hidden rounded-xl border border-[var(--color-outline-variant)]">
                     <table className="min-w-full divide-y divide-[var(--color-outline-variant)] text-sm text-left">
                       <thead className="bg-[var(--color-surface-container-high)]">
                         <tr>
-                          <th className="px-4 py-2 font-medium text-[var(--color-on-surface-variant)]">Product ID</th>
-                          <th className="px-4 py-2 font-medium text-[var(--color-on-surface-variant)] text-center">Qty</th>
-                          <th className="px-4 py-2 font-medium text-[var(--color-on-surface-variant)] text-right">Price</th>
+                          <th className="px-4 py-2 font-medium text-[var(--color-on-surface-variant)]">ID Producto</th>
+                          <th className="px-4 py-2 font-medium text-[var(--color-on-surface-variant)] text-center">Cant</th>
+                          <th className="px-4 py-2 font-medium text-[var(--color-on-surface-variant)] text-right">Precio</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-[var(--color-outline-variant)] bg-[var(--color-surface-container-lowest)]">
