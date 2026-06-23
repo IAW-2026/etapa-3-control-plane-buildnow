@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { X, MapPin, ShoppingCart, Loader2 } from 'lucide-react';
-import { BuyerDetailResponse } from '../../financial/types';
+import { BuyerDetailResponse } from '../types';
 import { getBuyerDetailAction } from '../actions/buyerControlPlaneActions';
 import { BuyerStatusBadge } from './BuyerStatusBadge';
 
