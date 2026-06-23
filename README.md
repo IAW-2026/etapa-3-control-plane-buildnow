@@ -1,28 +1,30 @@
-Build Now - Control Plane
-Aplicación Control Plane del Proyecto IAW 2026. Esta plataforma provee un panel administrativo centralizado que permite la gestión unificada de todas las apps, la activación y desactivación de usuarios, y la resolución de disputas.
+# 🚀 Build Now - Control Plane
 
-🚀 Deploy
-🔗 [Link al Deploy](https://etapa-3-control-plane-buildnow.vercel.app/)
+Aplicación **Control Plane** del proyecto **IAW 2026**.
 
-🔐 Accesos y Credenciales
-Para acceder a la aplicación puedes usar las siguientes cuentas de prueba:
+Esta plataforma proporciona un panel administrativo centralizado para la gestión unificada de todas las aplicaciones del ecosistema Build Now, permitiendo:
 
-1. Administrador (Admin)
-Email: admin+clerktest@iaw.com
-Contraseña: iawuser#
+* 👥 Administración de usuarios
+* ✅ Activación y desactivación de cuentas
+* 🛠️ Gestión centralizada de aplicaciones
+* ⚖️ Resolución y seguimiento de disputas
 
-⚙️ Configuración Local (.env)
-Para correr el proyecto localmente, configura las siguientes variables en tu archivo .env:
+---
 
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=
-CLERK_SECRET_KEY=
-NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
-NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
+## 🌐 Deploy
 
-NEXT_PUBLIC_CLERK_AFTER_SIGN_OUT_URL=/sign-in
+Accede a la aplicación desde el siguiente enlace:
 
-NEXT_PUBLIC_API_SELLER_URL=https://proyecto-b-seller-buildnow.vercel.app
-PAYMENTS_APP_URL=https://proyecto-b-payments-buildnow.vercel.app
-DELIVERY_API_URL=https://proyecto-b-delivery-buildnow.vercel.app
-BUYER_APP_URL=https://proyecto-b-buyer-buildnow.vercel.app
+🔗 **https://etapa-3-control-plane-buildnow.vercel.app/**
+
+---
+
+## 🔐 Credenciales de Prueba
+
+### Administrador (Admin)
+
+| Campo          | Valor                     |
+| -------------- | ------------------------- |
+| **Email**      | `admin+clerktest@iaw.com` |
+| **Contraseña** | `iawuser#`                |
 
