@@ -1,5 +1,5 @@
 import { Users, UserCheck, UserX, MapPin } from 'lucide-react';
-import { BuyerSummary } from '../../financial/types';
+import { BuyerSummary } from '../types';
 
 export function BuyerMetrics({ summary }: { summary: BuyerSummary }) {
   const cards = [
