@@ -3,15 +3,11 @@
 import { useClerk } from '@clerk/nextjs';
 import { usePathname, useRouter } from 'next/navigation';
 import {
-  LayoutDashboard, Users, Store, ShoppingCart,
-  Truck, CreditCard, AlertTriangle, Settings,
-  FileSearch, Server, LogOut, ShieldCheck
+  Users, Store, Truck, CreditCard, LogOut, ShieldCheck
 } from 'lucide-react';
 
 const navItems = [
-  { label: 'Dashboard', href: '/', icon: LayoutDashboard },
   { label: 'Buyers', href: '/buyers', icon: Users },
-  { label: 'Users', href: '/users', icon: Users },
   { label: 'Seller', href: '/seller', icon: Store },
   { label: 'Delivery', href: '/delivery', icon: Truck },
   { label: 'Finanzas', href: '/finanzas', icon: CreditCard }
