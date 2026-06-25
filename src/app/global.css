@@ -1,0 +1,33 @@
+@import "tailwindcss";
+
+@theme {
+  --color-background: #f5f5f5;
+  --color-surface: #ffffff;
+  --color-surface-container: #ffffff;
+  --color-surface-container-high: #f0f0f0;
+  --color-surface-container-highest: #e8e8e8;
+  --color-surface-container-low: #fafafa;
+  --color-surface-container-lowest: #ffffff;
+
+  --color-primary: #FF6600;
+  --color-on-primary: #ffffff;
+
+  --color-on-surface: #111111;
+  --color-on-surface-variant: #666666;
+
+  --color-outline-variant: #e0e0e0;
+}
+
+@layer base {
+  html, body {
+    background-color: #f5f5f5;
+    color: #111111;
+  }
+}
+
+@layer components {
+  .industrial-card {
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+  }
+}
