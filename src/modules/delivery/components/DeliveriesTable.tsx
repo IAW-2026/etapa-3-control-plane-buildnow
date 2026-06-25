@@ -6,7 +6,7 @@ import { toast } from "react-hot-toast";
 import { Loader2 } from "lucide-react";
 
 import { Delivery, StatusDelivery } from "../types";
-import { StatusBadge } from "@/modules/seller/components/StatusBadge"; // Reutilizamos el StatusBadge
+import { StatusBadge } from "./StatusBadge";
 import { ConfirmStatusModal } from "@/modules/seller/components/ConfirmStatusModal";
 import { updateDeliveryStatusAction } from "../actions/deliveryActions";
 
@@ -159,7 +159,6 @@ export function DeliveriesTable({ deliveries, loading }: DeliveriesTableProps) {
                     <td className="px-4 py-2.75">
                       <StatusBadge status={delivery.status as any} />
                     </td>
-                    {/* 2. Envolvemos el contenido de acciones en un div flexible para alinearlos bonito */}
                     <td className="px-4 py-2.75 text-left">
                       <div className="flex items-center gap-3 whitespace-nowrap">
                         <button

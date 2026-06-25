@@ -43,3 +43,9 @@ export interface Repartidor {
   vehicleType: VehicleType;
   deliveries: Delivery[];
 }
+
+export const DELIVERY_STATUS_LABELS: Record<StatusDelivery, string> = {
+  [StatusDelivery.ASSIGNED]: "Asignado",
+  [StatusDelivery.DELIVERED]: "Entregado",
+  [StatusDelivery.ON_THE_WAY]: "En camino",
+};
