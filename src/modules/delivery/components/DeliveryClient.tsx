@@ -3,8 +3,9 @@
 import { useState, useMemo } from "react";
 import { useEffect } from "react";
 import { Repartidor } from "../types";
-import { DeliveriesTable, DeliveryColumn } from "./DeliveriesTable";
-import { ChevronDown, Search } from "lucide-react";
+import { DeliveriesTable } from "./DeliveriesTable";
+import { Search } from "lucide-react";
+import MetricasTab from "./MetricasTab";
 
 interface DeliveryClientProps {
   data: Repartidor[];
@@ -69,6 +70,16 @@ export const DeliveryClient: React.FC<DeliveryClientProps> = ({ data }) => {
     }[];
   }, [data, searchTerm]);
 
+  const totalDrivers = filteredRepartidores.length;
+
+  const activeDrivers = filteredRepartidores.filter((driver) =>
+    driver.deliveries.some((del) => del.status === "ON_THE_WAY"),
+  ).length;
+
+  const completedDeliveries = filteredRepartidores
+    .flatMap((d) => d.deliveries)
+    .filter((del) => del.status === "DELIVERED").length;
+
   useEffect(() => {
     const q = searchTerm.trim();
     if (!q) return;
@@ -89,27 +100,43 @@ export const DeliveryClient: React.FC<DeliveryClientProps> = ({ data }) => {
         />
       </div>
 
+      <MetricasTab
+        totalDrivers={totalDrivers}
+        activeDrivers={activeDrivers}
+        completedDeliveries={completedDeliveries}
+      />
+
       <div className="space-y-3">
         {filteredRepartidores.map(({ repartidor, deliveries }) => {
+          const isDriverActive = deliveries.some(
+            (del) => del.status === "ON_THE_WAY",
+          );
+
           return (
             <div
               key={repartidor.id}
               className="overflow-hidden rounded-xl border border-outline-variant bg-surface"
             >
-              <button
-                onClick={() => toggleRepartidor(repartidor.id)}
-                className="flex w-full items-center justify-between px-4 py-3 text-left font-medium text-on-surface hover:bg-surface-container-high cursor-pointer"
-              >
-                <span>
-                  {repartidor.name} ({deliveries.length} deliveries)
-                </span>
-                <ChevronDown
-                  className={`h-5 w-5 transform transition-transform ${openRepartidores.has(repartidor.id) ? "rotate-180" : ""}`}
-                />
-              </button>
-              {openRepartidores.has(repartidor.id) && (
+              <div>
+                <div className="flex w-full items-center justify-between px-4 py-3 text-left font-medium text-on-surface">
+                  <span>
+                    {repartidor.name} ({deliveries.length} deliveries)
+                  </span>
+
+                  {isDriverActive ? (
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-green-50 px-2 py-1 text-xs font-medium text-green-700 border border-green-200">
+                      <span className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" />
+                      Activo
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center rounded-full bg-slate-50 px-2 py-1 text-xs font-medium text-slate-600 border border-slate-200">
+                      Inactivo
+                    </span>
+                  )}
+                </div>
+
                 <DeliveriesTable deliveries={deliveries} />
-              )}
+              </div>
             </div>
           );
         })}
