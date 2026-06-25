@@ -83,19 +83,6 @@ export function DeliveriesTable({ deliveries, loading }: DeliveriesTableProps) {
     setModalState({ isOpen: false, deliveryId: "", newStatus: null });
   };
 
-  const showHistory = (delivery: DeliveryColumn) => {
-    const historyText = delivery.stateHistories
-      .sort(
-        (a, b) =>
-          new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
-      )
-      .map((h) => `${h.status}: ${new Date(h.timestamp).toLocaleString()}`)
-      .join("\n");
-    alert(
-      `Historial del Delivery (ID: ...${delivery.id.slice(-6)}):\n\n${historyText}`,
-    );
-  };
-
   return (
     <>
       <div className="bg-(--color-surface)">
@@ -161,12 +148,6 @@ export function DeliveriesTable({ deliveries, loading }: DeliveriesTableProps) {
                     </td>
                     <td className="px-4 py-2.75 text-left">
                       <div className="flex items-center gap-3 whitespace-nowrap">
-                        <button
-                          onClick={() => showHistory(delivery)}
-                          className="text-xs hover:underline cursor-pointer text-on-surface-variant"
-                        >
-                          Historial
-                        </button>
                         <select
                           value={delivery.status}
                           onChange={(e) =>
