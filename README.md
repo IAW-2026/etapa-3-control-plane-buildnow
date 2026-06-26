@@ -1,9 +1,30 @@
-# control-plane
+# 🚀 Build Now - Control Plane
 
-Aplicación **Control Plane** del [Proyecto IAW 2026](https://iaw-2026.github.io/proyecto/) — comisión `<!-- completar -->`.
+Aplicación **Control Plane** del proyecto **IAW 2026**.
 
-Panel administrativo centralizado (Etapa 3): gestión unificada de todas las apps, activación/desactivación de usuarios y resolución de disputas.
+Esta plataforma proporciona un panel administrativo centralizado para la gestión unificada de todas las aplicaciones del ecosistema Build Now, permitiendo:
+
+* 👥 Administración de usuarios
+* ✅ Activación y desactivación de cuentas
+* 🛠️ Gestión centralizada de aplicaciones
+* ⚖️ Resolución y seguimiento de disputas
 
 ---
 
-Enunciado completo: <https://iaw-2026.github.io/proyecto/>
+## 🌐 Deploy
+
+Accede a la aplicación desde el siguiente enlace:
+
+🔗 **https://etapa-3-control-plane-buildnow.vercel.app/**
+
+---
+
+## 🔐 Credenciales de Prueba
+
+### Administrador (Admin)
+
+| Campo          | Valor                     |
+| -------------- | ------------------------- |
+| **Email**      | `admin+clerktest@iaw.com` |
+| **Contraseña** | `iawuser#`                |
+
